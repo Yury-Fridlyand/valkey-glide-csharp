@@ -118,10 +118,10 @@ jobs:
                   mkdir ort_results
                   # Analyzer (analyzer-result.json)
                   ./gradlew cli:run --args="--info analyze -i . -o ort_results -f JSON"
-            
+
                   # NOTICE DEFAULT
                   ./gradlew cli:run --args="--info report -i ort_results/analyzer-result.json -o ort_results/ -f PlainTextTemplate"
-            
+
             - name: Upload ORT results
               if: always()
               continue-on-error: true
