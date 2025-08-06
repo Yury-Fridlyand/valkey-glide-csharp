@@ -10,11 +10,6 @@ on:
         ref_type: branch
         ref: "refs/heads/release-*"
     workflow_dispatch:
-        inputs:
-            branch_name:
-                description: "The branch to run against the ORT tool"
-                required: true
-                default: "main"
 
 jobs:
     run-ort:
@@ -133,7 +128,7 @@ jobs:
 
               ### Get licenses ###
             - name: Retrieve licenses list
-              working-directory: valkey-glide/utils
+              working-directory: utils
               run: |
                   {
                     echo 'LICENSES_LIST<<EOF'
