@@ -25,15 +25,9 @@ jobs:
 
         env:
             ATTRIBUTIONS_FILE: "THIRD_PARTY_LICENSES"
-            TARGET_BRANCH: ${{ github.event.inputs.branch_name }} # TODO
-            EVENT_NAME: ${{ github.event_name }}
-            HEAD_REF: ${{ github.head_ref }}
 
         steps:
-            - run: echo "${{ toJson(github.event) }}"
-
-            - name: Checkout target branch
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
               with:
                   submodules: true
 
@@ -197,6 +191,7 @@ jobs:
             - name: Create pull request
               if: ${{ env.FOUND_DIFF  == 'true' && github.event_name != 'pull_request' }}
               run: |
+                  export TARGET_BRANCH=`git branch --show-current`
                   export ORT_DIFF_BRANCH_NAME="ort-diff-for-$TARGET_BRANCH"
                   echo "Creating pull request from branch $ORT_DIFF_BRANCH_NAME to branch $TARGET_BRANCH"
                   git config --global user.email "valkey-glide@lists.valkey.io"
