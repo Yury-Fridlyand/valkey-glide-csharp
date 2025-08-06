@@ -31,6 +31,10 @@ jobs:
               with:
                   submodules: true
 
+              # Remove other clients, otherwise ORT will analyze them too and get into collision (same crate names)
+            - name: Remove other clients
+              run: rm -rf valkey-glide/{csharp,ffi,java,node,python,go}
+
             - name: Setup target commit
               run: |
                   echo "TARGET_COMMIT=`git rev-parse HEAD`" >> $GITHUB_ENV
