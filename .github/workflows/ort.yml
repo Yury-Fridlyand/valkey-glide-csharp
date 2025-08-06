@@ -46,7 +46,7 @@ jobs:
               id: cache-ort
               with:
                   path: |
-                      ./ort
+                      /tmp/ort
                       ~/.gradle/caches
                       ~/.gradle/wrapper
                   key: ${{ runner.os }}-ort
@@ -60,12 +60,17 @@ jobs:
                   ref: "46.0.0"
                   submodules: recursive
 
+              # Move ORT outside of repo, otherwise it will try to analyze itself (can't checkout straight to /tmp)
+            - name: Move ORT Repository
+              if: steps.cache-ort.outputs.cache-hit != 'true'
+              run: mv ./ort /tmp
+
             - name: Install Rust toolchain
               uses: dtolnay/rust-toolchain@1.85
 
             - name: Build and install ORT
               if: steps.cache-ort.outputs.cache-hit != 'true'
-              working-directory: ./ort
+              working-directory: /tmp/ort
               run: |
                   export JAVA_OPTS="$JAVA_OPTS -Xmx8g"
                   ./gradlew installDist
@@ -90,6 +95,7 @@ jobs:
                       8
                       9
 
+              # Install it somewhere outside of repo, otherwise ORT will try to process inspector's sources too
             - name: Set up nuget-inspector
               working-directory: /tmp
               run: |
@@ -104,7 +110,7 @@ jobs:
                   dotnet add package StackExchange.Redis --version 2.8.58
 
             - name: Run ORT tools
-              working-directory: ./ort
+              working-directory: /tmp/ort
               run: |
                   mkdir ort_results
                   # Analyzer (analyzer-result.json)
