@@ -25,11 +25,13 @@ jobs:
 
         env:
             ATTRIBUTIONS_FILE: "THIRD_PARTY_LICENSES"
-            TARGET_BRANCH: ${{ github.event.inputs.branch_name }}
+            TARGET_BRANCH: ${{ github.event.inputs.branch_name }} # TODO
             EVENT_NAME: ${{ github.event_name }}
             HEAD_REF: ${{ github.head_ref }}
 
         steps:
+            - run: echo "${{ toJson(github.event) }}"
+
             - name: Checkout target branch
               uses: actions/checkout@v4
               with:
@@ -50,7 +52,7 @@ jobs:
               id: cache-ort
               with:
                   path: |
-                      ./ort
+                      /tmp/ort
                       ~/.gradle/caches
                       ~/.gradle/wrapper
                   key: ${{ runner.os }}-ort
@@ -59,8 +61,8 @@ jobs:
               if: steps.cache-ort.outputs.cache-hit != 'true'
               uses: actions/checkout@v4
               with:
-                  repository: "oss-review-toolkit/ort"
-                  path: "./ort"
+                  repository: oss-review-toolkit/ort
+                  path: /tmp/ort
                   ref: "46.0.0"
                   submodules: recursive
 
@@ -69,7 +71,7 @@ jobs:
 
             - name: Build and install ORT
               if: steps.cache-ort.outputs.cache-hit != 'true'
-              working-directory: ./ort/
+              working-directory: /tmp/ort
               run: |
                   export JAVA_OPTS="$JAVA_OPTS -Xmx8g"
                   ./gradlew installDist
@@ -95,10 +97,11 @@ jobs:
                       9
 
             - name: Set up nuget-inspector
+              working-directory: /tmp
               run: |
                   wget -q https://github.com/aboutcode-org/nuget-inspector/releases/download/v0.9.12/nuget-inspector-v0.9.12-linux-x64.tar.gz
                   tar xf nuget-inspector-*.tar.gz
-                  echo $GITHUB_WORKSPACE/nuget-inspector >> $GITHUB_PATH
+                  echo /tmp/nuget-inspector >> $GITHUB_PATH
 
               # Add SER, because >50% of glide C# client's code is copied from there for compatibility purposes
             - name: Add SER dependency
@@ -107,8 +110,7 @@ jobs:
                   dotnet add package StackExchange.Redis --version 2.8.58
 
             - name: Run ORT tools
-              id: ort
-              working-directory: ./ort/
+              working-directory: /tmp/ort
               run: |
                   mkdir ort_results
                   # Analyzer (analyzer-result.json)
