@@ -89,7 +89,6 @@ class PackageLicense:
 
 
 ort_results_per_lang = [
-    OrtResults("Rust", "valkey-glide/glide-core/ort_results"),
     OrtResults("C#", "ort_results"),
 ]
 
