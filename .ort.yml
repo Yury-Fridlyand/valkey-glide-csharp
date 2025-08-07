@@ -9,6 +9,8 @@ excludes:
     - pattern: "valkey-glide/**"
       reason: "BUILD_TOOL_OF"
       comment: Excluding submodule with GLIDE core repo to avoid it being analysed twice
+      # Note: it still will analyze dependencies of core.
+      # Without that ORT will go into that dir and try analysing all depednencies for all components there (including other clients)
   scopes:
     - pattern: "xunit.*"
       reason: "TEST_DEPENDENCY_OF"

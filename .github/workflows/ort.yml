@@ -34,11 +34,6 @@ jobs:
               with:
                   submodules: true
 
-              # Remove other clients, otherwise ORT will analyze them too and get into collision (same crate names)
-              # Note: it still analyzes all possible dependencies of core, not just used ones by C#'s client rust part
-            # - name: Remove other clients
-            #  run: rm -rf valkey-glide/{benchmarks,csharp,ffi,java,node,python,go}
-
             - name: Setup target commit
               run: |
                   echo "TARGET_COMMIT=`git rev-parse HEAD`" >> $GITHUB_ENV
@@ -202,7 +197,7 @@ jobs:
                   fi
 
               ### Create PR, Note a potential race on the source branch ###
-            - name: Create pull request
+            - name: Create or update pull request
               if: ${{ env.FOUND_DIFF  == 'true' && github.event_name != 'pull_request' }}
               run: |
                   export TARGET_BRANCH=`git branch --show-current`
@@ -235,7 +230,7 @@ jobs:
 
               ### Warn of outdated ATTRIBUTIONS_FILE for PR ###
             - name: Warn of outdated ATTRIBUTIONS_FILE due to the PR
-              if: ${{ env.FOUND_DIFF == 'true' && github.event_name == 'pull_request' }}
+              if: ${{ env.FOUND_DIFF == 'true' }}
               run: |
                   MESSAGE="WARNING! The attribution files differ in this PR. Please ensure an updating PR is issued using a scheduled or manual run of this workflow!"
 
