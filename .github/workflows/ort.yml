@@ -217,11 +217,11 @@ jobs:
                     # Create a new PR if none exists
                     # Extract tag name if this was triggered by a tag
                     if [[ "${{ github.event_name }}" == "create" && "${{ github.event.ref_type }}" == "tag" ]]; then
-                        export BRANCH_INFO="for tag `${{ github.event.ref }}` on branch `$TARGET_BRANCH`"
+                        export BRANCH_INFO="for tag `${{ github.event.ref }}` on branch \`$TARGET_BRANCH\`"
                     elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
-                        export BRANCH_INFO="for tag `${{ github.ref_name }}` on branch `$TARGET_BRANCH`"
+                        export BRANCH_INFO="for tag `${{ github.ref_name }}` on branch \`$TARGET_BRANCH\`"
                     else
-                        export BRANCH_INFO="for branch `$TARGET_BRANCH`"
+                        export BRANCH_INFO="for branch \`$TARGET_BRANCH\`"
                     fi
                     title="Updated attribution files $BRANCH_INFO"
                     gh pr create -B ${TARGET_BRANCH} -H ${ORT_DIFF_BRANCH_NAME} --title "${title}" --body "Created by Github action. ${{ env.LICENSES_LIST }}"
