@@ -1,7 +1,7 @@
 name: The OSS Review Toolkit (ORT)
 
 permissions:
-    contents: read
+    contents: write
     pull-requests: write
     actions: read
 
@@ -234,7 +234,7 @@ jobs:
                     echo "Pull request updated successfully."
                   fi
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   INPUT_VERSION: ${{ github.event.inputs.version }}
 
               ### Warn of outdated ATTRIBUTIONS_FILE for PR ###
