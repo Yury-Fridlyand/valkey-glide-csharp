@@ -35,8 +35,9 @@ jobs:
                   submodules: true
 
               # Remove other clients, otherwise ORT will analyze them too and get into collision (same crate names)
-            - name: Remove other clients
-              run: rm -rf valkey-glide/{csharp,ffi,java,node,python,go}
+              # Note: it still analyzes all possible dependencies of core, not just used ones by C#'s client rust part
+            # - name: Remove other clients
+            #  run: rm -rf valkey-glide/{benchmarks,csharp,ffi,java,node,python,go}
 
             - name: Setup target commit
               run: |
