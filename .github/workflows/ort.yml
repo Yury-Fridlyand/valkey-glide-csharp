@@ -119,7 +119,7 @@ jobs:
             - name: Run ORT tools
               working-directory: /tmp/ort
               run: |
-                  mkdir ort_results
+                  mkdir -p $GITHUB_WORKSPACE/ort_results
                   # Analyzer (analyzer-result.json)
                   ./gradlew cli:run --args="--info analyze -i $GITHUB_WORKSPACE -o $GITHUB_WORKSPACE/ort_results -f JSON"
 
