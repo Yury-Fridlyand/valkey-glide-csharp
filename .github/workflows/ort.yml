@@ -17,6 +17,10 @@ on:
             - .github/workflows/ort.yml
     workflow_dispatch:
 
+concurrency:
+    group: ORT-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
     run-ort:
         name: Create attribution files
