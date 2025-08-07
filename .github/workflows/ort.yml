@@ -10,6 +10,7 @@ on:
         ref_type: branch
         ref: "refs/heads/release-*"
     push:
+        tags:
         paths:
             - .github/workflows/ort.yml
     pull_request:
@@ -27,8 +28,7 @@ jobs:
         runs-on: ubuntu-latest
         # if: github.repository_owner == 'valkey-io'
         env:
-            ATTRIBUTIONS_FILE: "THIRD_PARTY_LICENSES"
-
+            ATTRIBUTIONS_FILE: THIRD_PARTY_LICENSES
         steps:
             - uses: actions/checkout@v4
               with:
@@ -215,7 +215,7 @@ jobs:
 
                   if [ -z "$existing_pr" ]; then
                     # Create a new PR if none exists
-                    title="Updated attribution files for commit ${TARGET_COMMIT}"
+                    title="Updated attribution files for branch $TARGET_BRANCH"
                     gh pr create -B ${TARGET_BRANCH} -H ${ORT_DIFF_BRANCH_NAME} --title "${title}" --body "Created by Github action. ${{ env.LICENSES_LIST }}"
                     echo "Pull request created successfully."
                   else
