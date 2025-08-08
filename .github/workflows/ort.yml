@@ -220,9 +220,9 @@ jobs:
                     # Create a new PR if none exists
                     # Extract tag name if this was triggered by a tag
                     if [[ "${{ github.event_name }}" == "create" && "${{ github.event.ref_type }}" == "tag" ]]; then
-                        BRANCH_INFO="for tag `${{ github.event.ref }}` on branch \`$TARGET_BRANCH\`"
-                    elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
-                        BRANCH_INFO="for tag `${{ github.ref_name }}` on branch \`$TARGET_BRANCH\`"
+                        BRANCH_INFO="for tag \`${{ github.event.ref }}\` on branch \`$TARGET_BRANCH\`"
+                    elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/tags/*" ]]; then
+                        BRANCH_INFO="for tag \`${{ github.ref_name }}\` on branch \`$TARGET_BRANCH\`"
                     else
                         BRANCH_INFO="for branch \`$TARGET_BRANCH\`"
                     fi
