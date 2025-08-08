@@ -10,7 +10,6 @@ on:
         ref_type: branch
         ref: "refs/heads/release-*"
     push:
-        tags:
         paths:
             - .github/workflows/ort.yml
     pull_request:
@@ -200,23 +199,7 @@ jobs:
             - name: Create or update pull request
               if: ${{ env.FOUND_DIFF  == 'true' && github.event_name != 'pull_request' }}
               run: |
-                  # Determine target branch - for tags, we need to find the branch the tag was created from
-                  if [ "${{ github.event_name }}" = "create" ] && [ "${{ github.event.ref_type }}" = "tag" ]; then
-                      # For tag creation, get the branch that contains this tag
-                      TARGET_BRANCH=$(git branch -r --contains HEAD | grep -v HEAD | head -1 | sed 's/.*origin\///')
-                      if [ -z "$TARGET_BRANCH" ]; then
-                          # Fallback to default branch if we can't determine the branch
-                          TARGET_BRANCH="${{ github.event.repository.default_branch }}"
-                      fi
-                      echo "Tag '${{ github.event.ref }}' created - using branch: $TARGET_BRANCH"
-                  else
-                      # For other events, use current branch or GitHub context
-                      TARGET_BRANCH=$(git branch --show-current)
-                      if [ -z "$TARGET_BRANCH" ]; then
-                          TARGET_BRANCH="${{ github.ref_name }}"
-                      fi
-                      echo "Using branch: $TARGET_BRANCH"
-                  fi
+                  TARGET_BRANCH=`git branch --show-current`
                   ORT_DIFF_BRANCH_NAME="ort-diff-for-$TARGET_BRANCH"
                   echo "Creating pull request from branch $ORT_DIFF_BRANCH_NAME to branch $TARGET_BRANCH"
                   git config --global user.email "valkey-glide@lists.valkey.io"
@@ -231,15 +214,7 @@ jobs:
 
                   if [ -z "$existing_pr" ]; then
                     # Create a new PR if none exists
-                    # Extract tag name if this was triggered by a tag
-                    if [[ "${{ github.event_name }}" == "create" && "${{ github.event.ref_type }}" == "tag" ]]; then
-                        BRANCH_INFO="for tag `${{ github.event.ref }}` on branch \`$TARGET_BRANCH\`"
-                    elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
-                        BRANCH_INFO="for tag `${{ github.ref_name }}` on branch \`$TARGET_BRANCH\`"
-                    else
-                        BRANCH_INFO="for branch \`$TARGET_BRANCH\`"
-                    fi
-                    title="Updated attribution files $BRANCH_INFO"
+                    title="Updated attribution files for branch \`$TARGET_BRANCH\`"
                     gh pr create -B ${TARGET_BRANCH} -H ${ORT_DIFF_BRANCH_NAME} --title "${title}" --body "Created by Github action. ${{ env.LICENSES_LIST }}"
                     echo "Pull request created successfully."
                   else
