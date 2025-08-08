@@ -200,8 +200,11 @@ jobs:
             - name: Create or update pull request
               if: ${{ env.FOUND_DIFF  == 'true' && github.event_name != 'pull_request' }}
               run: |
-                  export TARGET_BRANCH=`git branch --show-current`
-                  export ORT_DIFF_BRANCH_NAME="ort-diff-for-$TARGET_BRANCH"
+                  TARGET_BRANCH=`git branch --show-current`
+                  if [ -z $TARGET_BRANCH ]; then
+                    TARGET_BRANCH=`git describe --tags --always HEAD`
+                  fi
+                  ORT_DIFF_BRANCH_NAME="ort-diff-for-$TARGET_BRANCH"
                   echo "Creating pull request from branch $ORT_DIFF_BRANCH_NAME to branch $TARGET_BRANCH"
                   git config --global user.email "valkey-glide@lists.valkey.io"
                   git config --global user.name "ort-bot"
@@ -217,11 +220,11 @@ jobs:
                     # Create a new PR if none exists
                     # Extract tag name if this was triggered by a tag
                     if [[ "${{ github.event_name }}" == "create" && "${{ github.event.ref_type }}" == "tag" ]]; then
-                        export BRANCH_INFO="for tag `${{ github.event.ref }}` on branch \`$TARGET_BRANCH\`"
+                        BRANCH_INFO="for tag `${{ github.event.ref }}` on branch \`$TARGET_BRANCH\`"
                     elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
-                        export BRANCH_INFO="for tag `${{ github.ref_name }}` on branch \`$TARGET_BRANCH\`"
+                        BRANCH_INFO="for tag `${{ github.ref_name }}` on branch \`$TARGET_BRANCH\`"
                     else
-                        export BRANCH_INFO="for branch \`$TARGET_BRANCH\`"
+                        BRANCH_INFO="for branch \`$TARGET_BRANCH\`"
                     fi
                     title="Updated attribution files $BRANCH_INFO"
                     gh pr create -B ${TARGET_BRANCH} -H ${ORT_DIFF_BRANCH_NAME} --title "${title}" --body "Created by Github action. ${{ env.LICENSES_LIST }}"
@@ -236,11 +239,11 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   INPUT_VERSION: ${{ github.event.inputs.version }}
 
-              ### Warn of outdated ATTRIBUTIONS_FILE for PR ###
-            - name: Warn of outdated ATTRIBUTIONS_FILE due to the PR
+              ### Warn of outdated ATTRIBUTIONS_FILE ###
+            - name: Warn of outdated ATTRIBUTIONS_FILE
               if: ${{ env.FOUND_DIFF == 'true' }}
               run: |
-                  MESSAGE="WARNING! The attribution files differ in this PR. Please ensure an updating PR is issued using a scheduled or manual run of this workflow!"
+                  MESSAGE="WARNING! The attribution files is outdated on this branch. Please ensure updating it by manually running of this workflow!"
 
                   # Echo the message to the console
                   echo "$MESSAGE"
@@ -252,5 +255,5 @@ jobs:
                     continue
                   else
                     # Emit a warning associated with the changed file
-                    echo "::warning file=$FILE::WARNING! The attribution file differs in this PR."
+                    echo "::warning file=$FILE::WARNING! The attribution file is outdated."
                   fi
